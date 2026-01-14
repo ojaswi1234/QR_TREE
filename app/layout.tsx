@@ -55,6 +55,11 @@ export default function RootLayout({
                 );
               });
             }
+            
+            // Log online/offline status
+            window.addEventListener('online', () => console.log('[Sync] Online - will sync to MongoDB'));
+            window.addEventListener('offline', () => console.log('[Sync] Offline - using IndexedDB only'));
+            console.log('[Sync] Initial status:', navigator.onLine ? 'Online' : 'Offline');
           `}
         </Script>
       </body>

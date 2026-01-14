@@ -45,13 +45,64 @@ export default function Page() {
         return;
       }
 
-      const treeId = await db.trees.add({
+      const treeData = {
         ...formData,
         age: parseInt(formData.age) || 0,
-      });
+      };
+
+      console.log('[Add Tree] Starting to add tree:', treeData.common_name);
+
+      let treeId: number;
+
+      // Strategy: If online, save to MongoDB FIRST to get the ID
+      // Then save to IndexedDB with the same ID
+      if (navigator.onLine) {
+        try {
+          console.log('[Add Tree] 🌐 Online - Saving to MongoDB first...');
+          
+          const response = await fetch('/api/trees', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(treeData),
+          });
+
+          const result = await response.json();
+          
+          if (result.success && result.data) {
+            treeId = result.data.tree_id;
+            console.log('[Add Tree] ✅ Saved to MongoDB with ID:', treeId);
+            
+            // Now save to IndexedDB with the SAME ID from MongoDB
+            await db.trees.put({
+              ...result.data,
+              tree_id: treeId,
+            });
+            console.log('[Add Tree] ✅ Saved to IndexedDB with same ID:', treeId);
+          } else {
+            throw new Error('MongoDB save failed: ' + result.error);
+          }
+        } catch (err) {
+          console.error('[Add Tree] ❌ MongoDB error:', err);
+          alert('Failed to connect to server. Please check your connection and try again.');
+          return;
+        }
+      } else {
+        // Offline: Use temporary negative ID (will sync when online)
+        console.log('[Add Tree] ⏳ Offline - Using temporary local ID');
+        const tempId = -(Date.now()); // Negative timestamp as temp ID
+        
+        treeId = await db.trees.add({
+          ...treeData,
+          tree_id: tempId,
+        }) as number;
+        
+        console.log('[Add Tree] ⏳ Saved to IndexedDB with temporary ID:', tempId);
+        console.log('[Add Tree] ⚠️ Will need to sync to MongoDB when online');
+      }
+
       router.push(`/treeAdded?tree_id=${treeId}`);
     } catch (error) {
-      console.error("Failed to add tree:", error);
+      console.error("[Add Tree] ❌ Failed to add tree:", error);
       alert("Failed to add tree. Please try again.");
     }
   };
