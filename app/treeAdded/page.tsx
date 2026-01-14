@@ -25,7 +25,7 @@ function TreeAddedContent() {
     const generateQR = async () => {
       try {
         setLoading(true);
-        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        const origin = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
         const qrUrl = `${origin}/tree/${tree_id}`;
         
         const qrDataUrl = await QRCode.toDataURL(qrUrl);
