@@ -20,16 +20,26 @@ export default function TreeDetailPage() {
       try {
         setLoading(true);
         const treeId = typeof id === "string" ? parseInt(id) : parseInt(id[0]);
+        
+        console.log("Looking for tree with ID:", treeId);
+        
+        // Check if database is accessible
+        const allTrees = await db.trees.toArray();
+        console.log("Total trees in database:", allTrees.length);
+        console.log("All tree IDs:", allTrees.map(t => t.tree_id));
+        
         const foundTree = await db.trees.get(treeId);
 
         if (foundTree) {
+          console.log("Tree found:", foundTree);
           setTree(foundTree);
         } else {
-          setError("Tree not found");
+          console.error("Tree not found. ID:", treeId);
+          setError(`Tree not found. You may need to add trees first. (ID: ${treeId})`);
         }
       } catch (err) {
         console.error("Error fetching tree:", err);
-        setError("Failed to load tree details");
+        setError("Failed to load tree details. Make sure you've added trees to the database first.");
       } finally {
         setLoading(false);
       }
@@ -54,13 +64,24 @@ export default function TreeDetailPage() {
         <div className="bg-white p-8 rounded-3xl shadow-xl text-center max-w-md">
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h1 className="text-2xl font-bold text-red-600 mb-2">Oops!</h1>
-          <p className="text-gray-600 mb-6">{error || "Tree not found"}</p>
-          <Link 
-            href="/"
-            className="inline-block bg-green-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-green-700 transition"
-          >
-            Go Home
-          </Link>
+          <p className="text-gray-600 mb-4">{error || "Tree not found"}</p>
+          <p className="text-sm text-gray-500 mb-6">
+            💡 Tip: Trees are stored locally on each device. Add trees on this device first.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Link 
+              href="/pages/addTree"
+              className="inline-block bg-green-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-green-700 transition"
+            >
+              Add Tree
+            </Link>
+            <Link 
+              href="/"
+              className="inline-block bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-xl hover:bg-gray-300 transition"
+            >
+              Go Home
+            </Link>
+          </div>
         </div>
       </main>
     );
