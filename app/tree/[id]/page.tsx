@@ -6,6 +6,7 @@ import { db, type Tree } from "@/utils/db";
 import Navbar from "@/components/Navbar";
 import TreeCard from "@/components/TreeCard";
 import Link from "next/link";
+import { AlertTriangle, Lightbulb } from "lucide-react";
 
 export default function TreeDetailPage() {
   const { id } = useParams();
@@ -113,14 +114,19 @@ export default function TreeDetailPage() {
 
   if (error || !tree) {
     return (
-      <main className="min-h-screen bg-green-100 flex flex-col items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-3xl shadow-xl text-center max-w-md">
-          <div className="text-red-500 text-5xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-red-600 mb-2">Oops!</h1>
+      <main className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-red-100 text-center max-w-md">
+          <div className="flex justify-center mb-4 text-red-500">
+             <AlertTriangle size={48} />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Oops!</h1>
           <p className="text-gray-600 mb-4">{error || "Tree not found"}</p>
-          <p className="text-sm text-gray-500 mb-6">
-            💡 Tip: Trees are stored locally on each device. Add trees on this device first.
-          </p>
+          <div className="bg-amber-50 p-3 rounded-xl border border-amber-100 mb-6 flex items-start text-left gap-2">
+            <Lightbulb size={16} className="text-amber-500 mt-1 shrink-0" />
+            <p className="text-xs text-amber-800">
+              Trees are stored locally on each device. Connect to internet to fetch from cloud.
+            </p>
+          </div>
           <div className="flex gap-3 justify-center">
             <Link 
               href="/pages/addTree"
@@ -130,7 +136,7 @@ export default function TreeDetailPage() {
             </Link>
             <Link 
               href="/"
-              className="inline-block bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-xl hover:bg-gray-300 transition"
+              className="inline-block bg-gray-100 text-gray-700 font-bold py-3 px-6 rounded-xl hover:bg-gray-200 transition"
             >
               Go Home
             </Link>
@@ -141,14 +147,17 @@ export default function TreeDetailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-green-100 font-sans text-gray-900 pb-12">
+    <main className="min-h-screen bg-neutral-50 font-sans text-gray-900 pb-12">
       <Navbar />
       
       <div className="max-w-2xl mx-auto p-6">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-green-900">Tree Details</h1>
-          <p className="text-green-700 opacity-80">
-            Information about this specific tree.
+          <Link href="/" className="inline-block text-sm font-semibold text-gray-500 hover:text-gray-900 mb-4 transition">
+             ← Back to Dashboard
+          </Link>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Tree Details</h1>
+          <p className="text-gray-500 mt-1">
+            Botanical information and stats.
           </p>
         </header>
 

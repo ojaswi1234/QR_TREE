@@ -1,8 +1,12 @@
 "use client";
 
 import { db } from "@/utils/db";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { Camera, X } from "lucide-react";
+import Link from "next/link";
+import { useDropzone } from "react-dropzone";
+import Image from "next/image";
 
 export default function Page() {
   const router = useRouter();
@@ -17,6 +21,41 @@ export default function Page() {
     planted_date: new Date().toISOString().split("T")[0],
     planted_by: "",
   });
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    acceptedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onabort = () => console.log('file reading was aborted');
+      reader.onerror = () => console.log('file reading has failed');
+      reader.onload = () => {
+        // Do whatever you want with the file contents
+        const binaryStr = reader.result;
+        if (typeof binaryStr === 'string') {
+            setFormData((prev) => ({
+                ...prev,
+                images: [...prev.images, binaryStr],
+            }));
+        }
+      }
+      reader.readAsDataURL(file);
+    });
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+      onDrop, 
+      accept: {
+          'image/*': ['.jpeg', '.png', '.jpg']
+      },
+      maxFiles: 3, 
+      maxSize: 10485760 // 10MB
+  });
+
+  const removeImage = (index: number) => {
+      setFormData((prev) => ({
+          ...prev,
+          images: prev.images.filter((_, i) => i !== index),
+      }));
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -108,27 +147,30 @@ export default function Page() {
   };
 
   return (
-    <main className="min-h-screen bg-green-100 font-sans text-gray-900 pb-12">
+    <main className="min-h-screen bg-neutral-50 font-sans text-gray-900 pb-12">
       <div className="max-w-xl mx-auto p-6">
         {/* Header */}
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-green-900">Add New Tree</h1>
-          <p className="text-green-700 opacity-80">
+          <Link href="/" className="inline-block text-sm font-semibold text-gray-500 hover:text-gray-900 mb-4 transition">
+             ← Back to Home
+          </Link>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Add New Tree</h1>
+          <p className="text-gray-500 mt-2 text-lg">
             Register a new sapling or tree to the database.
           </p>
         </header>
 
-        <form className="bg-white rounded-3xl p-8 shadow-xl border border-green-200 space-y-6" onSubmit={handleSubmit}>
+        <form className="bg-white rounded-3xl p-8 shadow-sm border border-neutral-200 space-y-6" onSubmit={handleSubmit}>
           {/* Common Name */}
           <div>
-            <label className="block text-xs font-bold text-green-600 uppercase tracking-widest mb-2">
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
               Common Name
             </label>
             <input
               type="text"
               name="common_name"
               placeholder="e.g. Banyan, Neem, Peepal"
-              className="w-full bg-green-50 border border-green-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+              className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all placeholder-gray-400"
               onChange={handleChange}
             />
           </div>
@@ -211,15 +253,60 @@ export default function Page() {
           </div>
 
 
-          {/* Photo Upload Placeholder */}
-          <div className="border-2 border-dashed border-green-200 rounded-2xl p-8 text-center bg-green-50 hover:bg-green-100 transition-colors cursor-pointer">
-            <div className="text-3xl mb-2">📸</div>
-            <p className="text-xs font-bold text-green-700 uppercase">
-              Upload Images
-            </p>
-            <p className="text-[10px] text-green-600 opacity-60">
-              PNG, JPG up to 10MB
-            </p>
+          {/* Photo Upload with Dropzone */}
+          <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                Tree Images (Max 3)
+              </label>
+              <div 
+                  {...getRootProps()} 
+                  className={`border-2 border-dashed rounded-2xl p-8 text-center transition-colors cursor-pointer group ${
+                      isDragActive ? 'border-green-500 bg-green-50' : 'border-neutral-200 bg-neutral-50 hover:bg-neutral-100 hover:border-green-300'
+                  }`}
+              >
+                <input {...getInputProps()} />
+                <div className="flex justify-center mb-3">
+                  <Camera size={32} className={`transition-opacity ${isDragActive ? 'text-green-600 opacity-100' : 'text-gray-400 opacity-80 group-hover:opacity-100'}`} />
+                </div>
+                {isDragActive ? (
+                  <p className="text-xs font-bold text-green-700 uppercase">Drop images here...</p>
+                ) : (
+                  <>
+                    <p className="text-xs font-bold text-gray-700 uppercase">
+                      Drag & drop or Click to Upload
+                    </p>
+                    <p className="text-[10px] text-gray-500 opacity-60">
+                      PNG, JPG up to 10MB
+                    </p>
+                  </>
+                )}
+              </div>
+
+              {/* Image Previews */}
+              {formData.images.length > 0 && (
+                  <div className="grid grid-cols-3 gap-4 mt-4">
+                      {formData.images.map((img, index) => (
+                          <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-neutral-200">
+                              <Image 
+                                  src={img} 
+                                  alt={`Preview ${index}`} 
+                                  fill 
+                                  className="object-cover" 
+                              />
+                              <button
+                                  type="button"
+                                  onClick={(e) => {
+                                      e.stopPropagation();
+                                      removeImage(index);
+                                  }}
+                                  className="absolute top-1 right-1 bg-white/80 p-1 rounded-full text-red-500 hover:bg-white transition"
+                              >
+                                  <X size={14} />
+                              </button>
+                          </div>
+                      ))}
+                  </div>
+              )}
           </div>
 
           <div>
@@ -251,7 +338,7 @@ export default function Page() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-200 hover:bg-green-700 active:scale-[0.98] transition-all"
+            className="w-full bg-green-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-700 active:scale-[0.98] transition-all"
           >
             Save Tree Details
           </button>

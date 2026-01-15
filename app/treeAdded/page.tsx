@@ -5,6 +5,7 @@ import { db } from "@/utils/db";
 import QRCode from "qrcode";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
+import { CheckCircle, AlertTriangle, Download, Plus } from "lucide-react";
 
 function TreeAddedContent() {
   const searchParams = useSearchParams();
@@ -116,49 +117,56 @@ function TreeAddedContent() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center p-8 min-h-screen bg-green-100">
-        <div className="bg-white p-6 rounded-2xl shadow-xl border border-red-200 text-center">
-            <div className="text-red-500 text-5xl mb-4">⚠️</div>
-            <div className="text-red-600 text-xl font-bold">{error}</div>
-            <a href="/pages/addTree" className="mt-4 inline-block text-green-600 underline">Go Back</a>
+      <div className="flex items-center justify-center p-8 min-h-screen bg-neutral-50">
+        <div className="bg-white p-8 rounded-3xl shadow-lg border border-red-100 text-center max-w-sm">
+            <div className="flex justify-center mb-4 text-red-500">
+               <AlertTriangle size={64} />
+            </div>
+            <div className="text-gray-900 text-lg font-bold mb-4">{error}</div>
+            <a href="/pages/addTree" className="text-sm font-bold text-gray-500 hover:text-gray-900 underline">Go Back</a>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-3xl p-8 shadow-xl border border-green-200 m-4 max-w-xl mx-auto">
+    <div className="bg-white rounded-3xl p-8 shadow-sm border border-neutral-100 m-4 max-w-xl mx-auto">
       <div className="text-center">
-        <div className="mb-6">
-          <h2 className="text-3xl font-bold text-green-900 mb-2">
-            Tree Added Successfully! 
+        <div className="mb-8">
+           <div className="flex justify-center mb-4">
+               <CheckCircle size={64} className="text-green-500" />
+           </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Tree Added Successfully
           </h2>
-          <p className="text-green-700">
-            Your tree has been registered with ID: {tree_id}
+          <p className="text-gray-500">
+            Registered with ID: {tree_id}
           </p>
         </div>
 
         {qrData && (
-          <div className="flex flex-col items-center space-y-6">
-            <div className="bg-white p-6 rounded-2xl shadow-lg border-2 border-green-200">
-              <Image src={qrData} width={200} height={200} alt="QR Code" />
+          <div className="flex flex-col items-center space-y-8">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-neutral-200">
+              <Image src={qrData} width={200} height={200} alt="QR Code" className="rounded-lg" />
             </div>
 
-            <div className="text-sm text-green-600">
+            <div className="text-sm text-gray-400">
               Scan this QR code to view tree details
             </div>
 
             <button
               onClick={handleDownload}
-              className="bg-green-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-green-700 active:scale-[0.98] transition-all"
+              className="bg-gray-900 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:bg-black transition-all flex items-center gap-2"
             >
+              <Download size={18} />
               Download QR Code
             </button>
 
             <a
               href="/pages/addTree"
-              className="text-green-600 hover:text-green-800 underline"
+              className="text-green-600 hover:text-green-700 font-medium flex items-center gap-2"
             >
+              <Plus size={16} />
               Add Another Tree
             </a>
           </div>
@@ -170,8 +178,8 @@ function TreeAddedContent() {
 
 export default function TreeAddedPage() {
     return (
-        <main className="min-h-screen bg-green-100 font-sans text-gray-900 py-12">
-            <Suspense fallback={<div className="text-center pt-20">Loading...</div>}>
+        <main className="min-h-screen bg-neutral-50 font-sans text-gray-900 py-12">
+            <Suspense fallback={<div className="text-center pt-20 text-gray-400">Loading...</div>}>
                 <TreeAddedContent />
             </Suspense>
         </main>

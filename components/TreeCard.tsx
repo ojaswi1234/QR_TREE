@@ -44,13 +44,13 @@ export default function TreeCard({ tree }: TreeCardProps) {
       </div>
 
       {/* Absolute Image - Fixed positioning relative to card */}
-      <div className="absolute top-6 right-6 w-20 h-20">
+      <div className="absolute top-6 right-6 w-20 h-20 rounded-lg overflow-hidden border border-neutral-100 shadow-sm bg-neutral-50">
         <Image
-          src="/images/banyan.png" // You can later update this to tree.image_url if available
+          src={tree.images && tree.images.length > 0 ? tree.images[0] : "/images/banyan.png"}
           width={80}
           height={80}
-          alt="tree icon"
-          className="object-contain"
+          alt={tree.common_name}
+          className="object-cover w-full h-full"
         />
       </div>
 
@@ -79,7 +79,7 @@ export default function TreeCard({ tree }: TreeCardProps) {
         {tree.benefits && tree.benefits.length > 0 && (
           <div>
             <h3 className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">
-              It&apos;s benefits include
+              Its benefits include
             </h3>
             <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
               {tree.benefits.map((benefit: string, index: number) => (
