@@ -6,6 +6,31 @@ interface TreeCardProps {
 }
 
 export default function TreeCard({ tree }: TreeCardProps) {
+  // Calculate dynamic age based on planted_date and initial age
+  const calculateAge = () => {
+    if (!tree.planted_date) return tree.age;
+    
+    const planted = new Date(tree.planted_date);
+    const now = new Date();
+    
+    // Check if date is valid
+    if (isNaN(planted.getTime())) return tree.age;
+
+    // Difference in milliseconds
+    const diffTime = now.getTime() - planted.getTime();
+    
+    // Convert to years (taking leap years roughly into account)
+    const yearsAdded = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365.25));
+    
+    // Ensure we don't return less than the initial age (in case of future dates)
+    const currentAge = tree.age + Math.max(0, yearsAdded);
+    
+    return currentAge;
+  };
+
+  const dynamicAge = calculateAge();
+
+
   return (
     <div className="relative bg-white rounded-2xl p-6 shadow-md border border-green-200 transition-all hover:shadow-lg">
       {/* Common Name */}
@@ -70,7 +95,7 @@ export default function TreeCard({ tree }: TreeCardProps) {
             <h3 className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">
               Age
             </h3>
-            <p className="text-sm font-bold">{tree.age} years</p>
+            <p className="text-sm font-bold">{dynamicAge} years</p>
           </div>
           <div>
             <h3 className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">

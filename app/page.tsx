@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { db, type Tree } from "@/utils/db";
+import TreeQRCode from "@/components/TreeQRCode";
 
 export default function Home() {
   const [treeCount, setTreeCount] = useState(0);
@@ -80,14 +81,22 @@ export default function Home() {
             <h2 className="text-xl font-bold text-green-900 mb-4">Recently Added</h2>
             <div className="space-y-2">
               {recentTrees.map((tree) => (
-                <Link 
+                <div 
                   key={tree.tree_id}
-                  href={`/tree/${tree.tree_id}`}
-                  className="block p-3 bg-green-50 rounded-xl hover:bg-green-100 transition border border-green-200"
+                  className="flex items-center justify-between p-3 bg-green-50 rounded-xl hover:bg-green-100 transition border border-green-200"
                 >
-                  <div className="font-bold text-green-900">{tree.common_name}</div>
-                  <div className="text-sm italic text-gray-600">{tree.scientific_name}</div>
-                </Link>
+                  <Link 
+                    href={`/tree/${tree.tree_id}`}
+                    className="flex-1"
+                  >
+                    <div className="font-bold text-green-900">{tree.common_name}</div>
+                    <div className="text-sm italic text-gray-600">{tree.scientific_name}</div>
+                  </Link>
+
+                  <div className="ml-4">
+                    <TreeQRCode treeId={tree.tree_id} treeName={tree.common_name} />
+                  </div>
+                </div>
               ))}
             </div>
           </div>
