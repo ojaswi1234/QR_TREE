@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { db, type Tree } from "@/utils/db";
+import { type Tree } from "@/types/tree";
 import Navbar from "@/components/Navbar";
 import TreeCard from "@/components/TreeCard";
 import Link from "next/link";
@@ -22,78 +22,32 @@ export default function TreeDetailPage() {
         setLoading(true);
         const treeId = typeof id === "string" ? parseInt(id) : parseInt(id[0]);
         
-        console.log("[Sync] Looking for tree with ID:", treeId);
+        console.log("[View Tree] Fetching tree with ID:", treeId);
         
-        // Check IndexedDB first
-        const allTrees = await db.trees.toArray();
-        console.log("[Sync] Total trees in IndexedDB:", allTrees.length);
-        
-        let foundTree = await db.trees.get(treeId);
+        if (!navigator.onLine) {
+            setError(`Tree #${treeId} not available offline.`);
+            setLoading(false);
+            return;
+        }
 
-        if (foundTree) {
-          console.log("[View Tree] ✅ Found in IndexedDB:", foundTree.common_name);
-          setTree(foundTree);
-          
-          // Optional: Check if MongoDB has this tree too (for sync verification)
-          if (navigator.onLine) {
-            fetch(`/api/trees/${treeId}`)
-              .then(res => res.json())
-              .then(result => {
-                if (result.success) {
-                  console.log('[View Tree] ✅ Also exists in MongoDB - in sync');
-                } else {
-                  console.log('[View Tree] ⚠️ Not in MongoDB - will sync on next update');
-                }
-              })
-              .catch(err => console.log('[View Tree] MongoDB check skipped:', err));
-          }
-        } else if (navigator.onLine) {
-          // NOT IN INDEXEDDB - Try MongoDB
-          console.log("[View Tree] ❌ Not in IndexedDB, checking MongoDB...");
-          
-          try {
+        try {
             const response = await fetch(`/api/trees/${treeId}`);
             const result = await response.json();
             
             if (result.success && result.data) {
               console.log("[View Tree] ✅ Found in MongoDB:", result.data.common_name);
-              
-              // Convert MongoDB data to IndexedDB format
-              const mongoTree: Tree = {
-                tree_id: result.data.tree_id,
-                common_name: result.data.common_name,
-                scientific_name: result.data.scientific_name,
-                description: result.data.description || '',
-                benefits: result.data.benefits || [],
-                images: result.data.images || [],
-                age: result.data.age || 0,
-                planted_date: result.data.planted_date,
-                health_status: result.data.health_status || 'Healthy',
-                planted_by: result.data.planted_by || '',
-                qr_code: result.data.qr_code,
-              };
-              
-              // Save to IndexedDB for offline access
-              console.log('[View Tree] 💾 Saving to IndexedDB for offline use...');
-              await db.trees.put(mongoTree);
-              console.log('[View Tree] ✅ Saved to IndexedDB successfully');
-              
-              setTree(mongoTree);
+              setTree(result.data);
             } else {
               console.error("[View Tree] ❌ Tree not found in MongoDB");
-              setError(`Tree #${treeId} not found. Please add this tree first.`);
+              setError(`Tree #${treeId} not found.`);
             }
-          } catch (fetchErr) {
+        } catch (fetchErr) {
             console.error("[View Tree] ❌ MongoDB fetch error:", fetchErr);
             setError(`Could not load tree from server. Check your connection.`);
-          }
-        } else {
-          console.error("[View Tree] ❌ Offline + Not in IndexedDB. ID:", treeId);
-          setError(`Tree #${treeId} not available offline. Please connect to internet first, then it will be cached.`);
         }
       } catch (err) {
         console.error("Error fetching tree:", err);
-        setError("Failed to load tree details. Make sure you've added trees to the database first.");
+        setError("Failed to load tree details.");
       } finally {
         setLoading(false);
       }

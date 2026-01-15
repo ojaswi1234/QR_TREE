@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { type Tree } from "@/utils/db";
+import { type Tree } from "@/types/tree";
 
 interface TreeCardProps {
   tree: Tree;

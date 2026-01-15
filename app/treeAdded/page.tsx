@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, Suspense } from "react";
-import { db } from "@/utils/db";
 import QRCode from "qrcode";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -27,10 +26,12 @@ function TreeAddedContent() {
       try {
         setLoading(true);
         
-        // Get tree from IndexedDB
-        const tree = await db.trees.get(tree_id);
-        if (!tree) {
-          setError("Tree not found in local database");
+        // Fetch tree from MongoDB to ensure it exists
+        const treeResponse = await fetch(`/api/trees/${tree_id}`);
+        const treeResult = await treeResponse.json();
+        
+        if (!treeResult.success || !treeResult.data) {
+          setError("Tree not found in database");
           return;
         }
 
@@ -41,15 +42,8 @@ function TreeAddedContent() {
 
         console.log('[QR Code] Generated for tree ID:', tree_id);
 
-        // Update IndexedDB
-        await db.trees.update(tree_id, {
-          qr_code: qrDataUrl,
-        });
-        console.log('[QR Code] ✅ Updated IndexedDB');
-
-        // Sync to MongoDB if online (tree should already exist there from add step)
-        if (navigator.onLine) {
-          try {
+        // Sync QR code back to MongoDB
+        try {
             const response = await fetch(`/api/trees/${tree_id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
@@ -58,34 +52,12 @@ function TreeAddedContent() {
 
             const result = await response.json();
             if (result.success) {
-              console.log('[QR Code] ✅ Synced to MongoDB');
+              console.log('[QR Code] ✅ Saved to MongoDB');
             } else {
               console.log('[QR Code] ⚠️ MongoDB update failed:', result.error);
-              // Try to create the tree in MongoDB if it doesn't exist
-              if (result.error === 'Tree not found') {
-                console.log('[QR Code] 🔄 Tree not in MongoDB, creating...');
-                const createResponse = await fetch('/api/trees', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(tree),
-                });
-                const createResult = await createResponse.json();
-                if (createResult.success) {
-                  console.log('[QR Code] ✅ Tree created in MongoDB');
-                  // Update with QR code
-                  await fetch(`/api/trees/${tree_id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ qr_code: qrDataUrl }),
-                  });
-                }
-              }
             }
-          } catch (err) {
-            console.log('[QR Code] ⚠️ MongoDB sync failed (will retry later):', err);
-          }
-        } else {
-          console.log('[QR Code] ⏳ Offline - MongoDB sync pending');
+        } catch (err) {
+            console.log('[QR Code] ⚠️ MongoDB sync failed:', err);
         }
 
         setQrData(qrDataUrl);

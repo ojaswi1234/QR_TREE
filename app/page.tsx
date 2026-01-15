@@ -2,7 +2,7 @@
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { db, type Tree } from "@/utils/db";
+import { type Tree } from "@/types/tree";
 import TreeQRCode from "@/components/TreeQRCode";
 import { 
   TreeDeciduous, 
@@ -20,9 +20,17 @@ export default function Home() {
 
   useEffect(() => {
     async function loadTrees() {
-      const allTrees = await db.trees.toArray();
-      setTreeCount(allTrees.length);
-      setRecentTrees(allTrees.slice(-3).reverse());
+      try {
+        const response = await fetch('/api/trees');
+        const result = await response.json();
+        if (result.success) {
+          const allTrees = result.data;
+          setTreeCount(allTrees.length);
+          setRecentTrees(allTrees.slice(0, 3)); // API sorts by -1 (descending), so take top 3
+        }
+      } catch (error) {
+        console.error("Failed to load trees:", error);
+      }
     }
     loadTrees();
   }, []);
