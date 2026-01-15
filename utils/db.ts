@@ -19,7 +19,7 @@ export const db = new Dexie("tree_database") as Dexie & {
   trees: EntityTable<Tree, "tree_id">;
 };
 
-// Version 3: Remove auto-increment since MongoDB generates the ID
-db.version(3).stores({
-  trees: "tree_id, common_name, scientific_name, health_status, planted_by, planted_date, age, description, benefits, images, qr_code",
+// Keep version 2 with auto-increment, but we'll use put() to override IDs from MongoDB
+db.version(2).stores({
+  trees: "++tree_id, common_name, scientific_name, health_status, planted_by, planted_date, age, description, benefits, images, qr_code",
 });
