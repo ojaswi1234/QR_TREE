@@ -93,20 +93,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Important Notice */}
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6">
-          <div className="flex gap-3">
-             <div className="text-amber-600 mt-0.5">
-               <Lightbulb size={24} />
-             </div>
-            <div>
-              <h3 className="font-bold text-amber-900 mb-1 text-sm uppercase tracking-wide">Local Storage</h3>
-              <p className="text-amber-800 text-sm leading-relaxed">
-                Trees are stored on this device. Ensure you have added the tree data here before scanning QR codes.
-              </p>
-            </div>
-          </div>
-        </div>
+      
 
         {/* Recent Trees */}
         {recentTrees.length > 0 && (

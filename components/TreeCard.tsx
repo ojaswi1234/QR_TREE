@@ -43,16 +43,28 @@ export default function TreeCard({ tree }: TreeCardProps) {
         </h2>
       </div>
 
-      {/* Absolute Image - Fixed positioning relative to card */}
-      <div className="absolute top-6 right-6 w-20 h-20 rounded-lg overflow-hidden border border-neutral-100 shadow-sm bg-neutral-50">
-        <Image
-          src={tree.images && tree.images.length > 0 ? tree.images[0] : "/images/banyan.png"}
-          width={80}
-          height={80}
-          alt={tree.common_name}
-          className="object-cover w-full h-full"
-        />
-      </div>
+      {/* Tree Images - Mobile Focused */}
+      {tree.images && tree.images.length > 0 && (
+        <div className="mb-6 -mx-6">
+          <div className="flex gap-3 overflow-x-auto px-6 pb-4 snap-x snap-mandatory">
+            {tree.images.map((img, index) => (
+              <div 
+                key={index} 
+                className="relative h-72 min-w-[85%] sm:min-w-[300px] snap-center rounded-2xl overflow-hidden shadow-sm border border-green-100 bg-gray-50"
+              >
+                <Image
+                  src={img}
+                  alt={`${tree.common_name} photo ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 85vw, 300px"
+                  priority={index === 0}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-6 mt-4">
         {/* Scientific Name */}

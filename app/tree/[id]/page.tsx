@@ -6,7 +6,7 @@ import { type Tree } from "@/types/tree";
 import Navbar from "@/components/Navbar";
 import TreeCard from "@/components/TreeCard";
 import Link from "next/link";
-import { AlertTriangle, Lightbulb } from "lucide-react";
+import { AlertTriangle, Lightbulb, Plus, TreeDeciduous } from "lucide-react";
 
 export default function TreeDetailPage() {
   const { id } = useParams();
@@ -75,12 +75,7 @@ export default function TreeDetailPage() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Oops!</h1>
           <p className="text-gray-600 mb-4">{error || "Tree not found"}</p>
-          <div className="bg-amber-50 p-3 rounded-xl border border-amber-100 mb-6 flex items-start text-left gap-2">
-            <Lightbulb size={16} className="text-amber-500 mt-1 shrink-0" />
-            <p className="text-xs text-amber-800">
-              Trees are stored locally on each device. Connect to internet to fetch from cloud.
-            </p>
-          </div>
+          
           <div className="flex gap-3 justify-center">
             <Link 
               href="/pages/addTree"
@@ -102,16 +97,24 @@ export default function TreeDetailPage() {
 
   return (
     <main className="min-h-screen bg-neutral-50 font-sans text-gray-900 pb-12">
-      <Navbar />
-      
+     
+      <header className="bg-white/80 backdrop-blur-md w-full h-16 flex items-center px-6 border-b border-neutral-200 sticky top-0 z-50">
+      <div className="w-full max-w-2xl mx-auto flex justify-between items-center h-full">
+       
+          <div className="bg-green-100 p-2 rounded-lg group-hover:bg-green-200 transition">
+             <TreeDeciduous size={20} className="text-green-700" />
+          </div>
+          <h1 className="text-lg font-bold text-gray-800 tracking-tight">QR Tree</h1>
+        
+        
+      </div>
+    </header>
       <div className="max-w-2xl mx-auto p-6">
         <header className="mb-8">
-          <Link href="/" className="inline-block text-sm font-semibold text-gray-500 hover:text-gray-900 mb-4 transition">
-             ← Back to Dashboard
-          </Link>
+          
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Tree Details</h1>
           <p className="text-gray-500 mt-1">
-            Botanical information and stats.
+            Botanical information
           </p>
         </header>
 
