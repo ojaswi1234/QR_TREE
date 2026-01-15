@@ -98,8 +98,8 @@ export default function TreeDetailPage() {
   return (
     <main className="min-h-screen bg-neutral-50 font-sans text-gray-900 pb-12">
      
-      <header className="bg-white/80 backdrop-blur-md w-full h-16 flex items-center px-6 border-b border-neutral-200 sticky top-0 z-50">
-      <div className="w-full max-w-2xl mx-auto flex justify-between items-center h-full">
+      <header className="bg-white/80 backdrop-blur-md w-full h-16 flex flex-row gap-2 items-center justify-center px-6 border-b border-neutral-200 sticky top-0 z-50">
+      
        
           <div className="bg-green-100 p-2 rounded-lg group-hover:bg-green-200 transition">
              <TreeDeciduous size={20} className="text-green-700" />
@@ -107,7 +107,7 @@ export default function TreeDetailPage() {
           <h1 className="text-lg font-bold text-gray-800 tracking-tight">QR Tree</h1>
         
         
-      </div>
+      
     </header>
       <div className="max-w-2xl mx-auto p-6">
         <header className="mb-8">
