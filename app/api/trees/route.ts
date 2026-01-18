@@ -25,6 +25,25 @@ export async function POST(request: NextRequest) {
     
     console.log('[API] Creating tree:', body.common_name);
     
+    // Check for duplicate: Common Name OR Scientific Name (Case Insensitive)
+    // We escape special regex characters to prevent invalid regex errors if names contain them
+    const escapeRegExp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    const existingDuplicate = await TreeModel.findOne({
+      $or: [
+        { common_name: { $regex: new RegExp(`^${escapeRegExp(body.common_name.trim())}$`, 'i') } },
+        { scientific_name: { $regex: new RegExp(`^${escapeRegExp(body.scientific_name.trim())}$`, 'i') } }
+      ]
+    });
+
+    if (existingDuplicate) {
+       console.log('[API] ⚠️ Duplicate found. ID:', existingDuplicate.tree_id);
+       return NextResponse.json(
+        { success: false, error: 'Tree with this Common Name or Scientific Name already exists.' },
+        { status: 409 }
+      );
+    }
+
     // Generate new tree_id by finding the highest existing ID
     const lastTree = await TreeModel.findOne().sort({ tree_id: -1 });
     const newTreeId = lastTree ? lastTree.tree_id + 1 : 1;
