@@ -296,6 +296,7 @@ export default function Page() {
               title="Planted Date"
               type="date"
               name="planted_date"
+              value={formData.planted_date}
               className="w-full bg-green-50 border border-green-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all italic"
               onChange={handleChange}
             />
