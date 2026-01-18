@@ -25,6 +25,19 @@ export async function POST(request: NextRequest) {
     
     console.log('[API] Creating tree:', body.common_name);
     
+    // Calculate age from planted_date
+    let calculatedAge = 0;
+    if (body.planted_date) {
+      const plantedDate = new Date(body.planted_date);
+      const today = new Date();
+      let years = today.getFullYear() - plantedDate.getFullYear();
+      const monthDiff = today.getMonth() - plantedDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < plantedDate.getDate())) {
+        years--;
+      }
+      calculatedAge = Math.max(0, years);
+    }
+    
     // Check for duplicate: Common Name OR Scientific Name (Case Insensitive)
     // We escape special regex characters to prevent invalid regex errors if names contain them
     const escapeRegExp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -50,10 +63,11 @@ export async function POST(request: NextRequest) {
     
     console.log('[API] Assigning tree_id:', newTreeId);
     
-    // Create new tree with auto-generated ID
+    // Create new tree with auto-generated ID and calculated age
     const tree = await TreeModel.create({
       ...body,
       tree_id: newTreeId,
+      age: calculatedAge,
     });
     
     console.log('[API] ✅ Tree created in MongoDB with ID:', newTreeId);

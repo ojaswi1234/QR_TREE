@@ -12,7 +12,6 @@ export default function Page() {
   const [formData, setFormData] = useState({
     common_name: "",
     scientific_name: "",
-    age: "",
     description: "",
     benefits: [] as string[],
     images: [] as string[],
@@ -97,7 +96,6 @@ export default function Page() {
     try {
       const treeData = {
         ...formData,
-        age: parseInt(formData.age) || 0,
       };
 
       console.log('[Add Tree] Starting to add tree:', treeData.common_name);
@@ -183,36 +181,22 @@ export default function Page() {
             />
           </div>
 
-          {/* Grid for Age and Health */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-green-600 uppercase tracking-widest mb-2">
-                Age (Years)
-              </label>
-              <input
-                type="number"
-                name="age"
-                placeholder="10"
-                className="w-full bg-green-50 border border-green-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-green-600 uppercase tracking-widest mb-2">
-                Health Status
-              </label>
-              <select
-                title="Health Status"
-                name="health_status"
-                className="w-full bg-green-50 border border-green-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none"
-                onChange={handleChange}
-              >
-                <option>Healthy</option>
-                <option>Excellent</option>
-                <option>Requires Care</option>
-                <option>Sick</option>
-              </select>
-            </div>
+          {/* Health Status */}
+          <div>
+            <label className="block text-xs font-bold text-green-600 uppercase tracking-widest mb-2">
+              Health Status
+            </label>
+            <select
+              title="Health Status"
+              name="health_status"
+              className="w-full bg-green-50 border border-green-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none"
+              onChange={handleChange}
+            >
+              <option>Healthy</option>
+              <option>Excellent</option>
+              <option>Requires Care</option>
+              <option>Sick</option>
+            </select>
           </div>
 
           {/* Description */}
